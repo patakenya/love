@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Great_Vibes&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
     <style>
         :where([class^="ri-"])::before { content: "\f3c2"; }
@@ -247,6 +247,17 @@
             max-height: 80vh;
             overflow-y: auto;
         }
+
+        .ring-image {
+            transition: all 0.5s ease;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .ring-image.show {
+            opacity: 1;
+            transform: scale(1);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between">
@@ -289,9 +300,7 @@
         
         <div id="final-message" class="final-message text-center mt-10">
             <div id="ring-animation" class="mb-8 flex items-center justify-center">
-                <div class="ring">
-                    <div class="diamond"></div>
-                </div>
+                <img src="image.png" alt="Engagement Ring" class="ring-image w-40 h-40 object-contain">
             </div>
             <h2 class="title-font text-4xl md:text-6xl text-secondary mb-4 glow">Forever starts with YES</h2>
             <p class="message-font text-xl text-secondary">June 29, 2025</p>
@@ -308,6 +317,10 @@
     
     <audio id="background-music" loop>
         <source src="all.mp3" type="audio/mp3">
+    </audio>
+    
+    <audio id="celebration-sound">
+        <source src="jd.mp3" type="audio/mp3">
     </audio>
     
     <script id="animation-script">
@@ -341,29 +354,13 @@
             }
             
             createElements();
-            
-            // Create sparkles for the ring
-            function createSparkles() {
-                const ring = document.querySelector('.ring');
-                if (!ring) return;
-                
-                for (let i = 0; i < 10; i++) {
-                    const sparkle = document.createElement('div');
-                    sparkle.classList.add('sparkle');
-                    sparkle.style.left = Math.random() * 150 + 'px';
-                    sparkle.style.top = Math.random() * 150 + 'px';
-                    sparkle.style.animationDelay = Math.random() * 2 + 's';
-                    ring.appendChild(sparkle);
-                }
-            }
-            
-            createSparkles();
         });
     </script>
     
     <script id="interaction-script">
         document.addEventListener('DOMContentLoaded', function() {
             const backgroundMusic = document.getElementById('background-music');
+            const celebrationSound = document.getElementById('celebration-sound');
             const muteToggle = document.getElementById('mute-toggle');
             const messageButtons = document.querySelectorAll('.message-button');
             const popup = document.getElementById('popup');
@@ -374,6 +371,7 @@
             const finalMessage = document.getElementById('final-message');
             const letterButton = document.getElementById('letter-button');
             const galleryImages = document.querySelectorAll('.gallery-img');
+            const ringImage = document.querySelector('.ring-image');
             
             // Play background music
             backgroundMusic.volume = 0.3;
@@ -391,11 +389,12 @@
             
             // Mute toggle
             muteToggle.addEventListener('click', function() {
-                if (backgroundMusic.paused) {
+                if (backgroundMusic.paused && celebrationSound.paused) {
                     backgroundMusic.play();
                     muteToggle.innerHTML = '<i class="ri-volume-up-line text-secondary"></i>';
                 } else {
                     backgroundMusic.pause();
+                    celebrationSound.pause();
                     muteToggle.innerHTML = '<i class="ri-volume-mute-line text-secondary"></i>';
                 }
             });
@@ -509,6 +508,10 @@
                 this.style.display = 'none';
                 letterButton.style.display = 'none';
                 finalMessage.classList.add('show');
+                ringImage.classList.add('show');
+                
+                // Pause background music before playing celebration sound
+                backgroundMusic.pause();
                 
                 // Add extra hearts and petals for celebration
                 const heartsContainer = document.getElementById('hearts-container');
@@ -532,9 +535,8 @@
                     petalsContainer.appendChild(petal);
                 }
                 
-                // Play a celebratory sound if possible
+                // Play celebration sound
                 try {
-                    const celebrationSound = new Audio('jd.mp3');
                     celebrationSound.volume = 0.5;
                     celebrationSound.play().catch(e => console.log('Could not play celebration sound:', e));
                 } catch (e) {
